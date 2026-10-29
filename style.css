@@ -173,3 +173,17 @@ footer{position:relative;z-index:1;border-top:1px solid var(--white-12);padding:
 }
 @media(hover:none){.item:hover{border-color:var(--white-12)}.item.sel:hover{border-color:var(--orange)}}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* categorias */
+.cats{display:flex;gap:10px;flex-wrap:wrap;margin:4px 0 0}
+.cats[hidden]{display:none}
+.cats button{font:inherit;cursor:pointer;color:#fff;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:9px 16px;transition:background .15s,border-color .15s}
+.cats button b{font-weight:400;color:var(--orange-light);margin-left:8px}
+.cats button:hover{border-color:var(--orange)}
+.cats button.on{background:var(--orange);border-color:var(--orange)}
+.cats button.on b{color:#fff}
+.item .cat{font-size:.75rem;letter-spacing:.06em;text-transform:uppercase;color:var(--orange-light);margin:2px 0 6px}
+@media(max-width:720px){
+  .cats{flex-wrap:nowrap;overflow-x:auto;padding-bottom:6px;-webkit-overflow-scrolling:touch}
+  .cats button{flex:0 0 auto}
+}
