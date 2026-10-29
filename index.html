@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Catálogo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;900&family=Barlow:wght@300;400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="circle c1"></div><div class="circle c2"></div>
+
+<div class="wrap">
+  <header>
+    <div class="logo" aria-label="Erlan Campos">
+      <span class="br">[</span><span class="ang">&lt;</span>
+      <span class="n1"> Erlan </span><span class="ang">/</span>
+      <span class="n2"> Campos </span><span class="ang">&gt;</span><span class="br">]</span>
+    </div>
+    <span class="badge"><i></i> Catálogo online</span>
+  </header>
+
+  <section class="hero">
+    <h1 class="display">Catálogo de <span class="code">itens</span></h1>
+    <div class="search" role="search">
+      <label class="field" for="codigo">
+        <input id="codigo" type="text" autocomplete="off" placeholder="Digite o código">
+      </label>
+      <button class="btn btn-primary" id="buscar" type="button">Buscar</button>
+      <button class="btn btn-ghost" id="limpar" type="button">Ver todos</button>
+    </div>
+  </section>
+
+  <div class="bar" role="region" aria-label="Itens selecionados">
+    <div class="info">
+      <span class="count"><b id="qtd">0</b> selecionado(s) · <b id="qtdTotal">0</b> un.</span>
+      <button class="linkbtn" id="todos" type="button">Selecionar todos os exibidos</button>
+      <button class="linkbtn" id="nenhum" type="button">Desmarcar</button>
+    </div>
+    <div class="acts">
+      <button class="btn btn-primary" id="pdf" type="button" disabled>Baixar PDF</button>
+    </div>
+  </div>
+
+  <main class="grid" id="grid" aria-live="polite"></main>
+</div>
+
+<footer>Desenvolvido por <strong style="color:#fff">Erlan Campos</strong> · Desenvolvedor Web &amp; T.I Profissional</footer>
+
+<div id="print"></div>
+
+<script src="produtos-roland.js"></script>
+<script src="app.js"></script>
+<script src="protecao.js"></script>
+
+</body>
+</html>
