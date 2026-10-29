@@ -1,6 +1,6 @@
 /* ============================================================
    CONFIGURAÇÃO — edite aqui
-   Cada item: code, nome, preco, imagem (caminho/URL)
+   Cada item: code, nome, preco, imagem (caminho/URL), categoria (opcional)
    Fotos na pasta imagens/ ao lado deste arquivo.
    ============================================================ */
 const MOEDA = "R$";
@@ -10,9 +10,23 @@ const MEUS_ITENS = [
 ];
 /* ============================================================ */
 
-/* Junta os seus itens com o catálogo Roland (arquivo produtos-roland.js) */
-const ITENS = MEUS_ITENS.concat(typeof ITENS_ROLAND !== "undefined" ? ITENS_ROLAND : [])
-  .map((i, n) => Object.assign({ code: "", compat: "" }, i, { id: String(n) }));
+/* CATEGORIAS: [nome da categoria, lista de itens do arquivo .js]
+   Para criar uma nova: crie o arquivo produtos-xxx.js, carregue no index.html
+   e acrescente uma linha aqui. */
+const CATALOGOS = [
+  ["Roland",  typeof ITENS_ROLAND  !== "undefined" ? ITENS_ROLAND  : []],
+  ["Epson",   typeof ITENS_EPSON   !== "undefined" ? ITENS_EPSON   : []],
+  ["Chinesa", typeof ITENS_CHINESA !== "undefined" ? ITENS_CHINESA : []],
+];
+
+/* Junta tudo: MEUS_ITENS + cada catálogo com a sua categoria.
+   Se o item tiver o próprio campo "categoria", ele vale mais que o do catálogo. */
+const ITENS = MEUS_ITENS
+  .concat(...CATALOGOS.map(([cat, lista]) => lista.map(i => Object.assign({ categoria: cat }, i))))
+  .map((i, n) => Object.assign({ code: "", compat: "", categoria: "Outros" }, i, { id: String(n) }));
+const CATS = [...new Set(CATALOGOS.map(c => c[0]).concat(ITENS.map(i => i.categoria)))]
+  .filter(c => ITENS.some(i => i.categoria === c));
+let catAtiva = "Todas";
 
 const $ = id => document.getElementById(id);
 const grid = $("grid"), input = $("codigo");
@@ -54,6 +68,7 @@ function render(){
       <div class="pic"><img src="${esc(i.imagem)}" alt="${esc(i.nome)}" loading="lazy" ${IMG_ERR}></div>
       <div class="body">
         <div class="tag">${i.code ? esc(i.code) : "Sob consulta"}</div>
+        ${CATS.length > 1 ? `<div class="cat">${esc(i.categoria)}</div>` : ""}
         <h3 class="display">${esc(i.nome)}</h3>
         ${i.compat ? `<p class="compat" title="${esc(i.compat)}"><b>Compatível:</b> ${esc(i.compat)}</p>` : ""}
         <div class="price"><small>${MOEDA}</small>${fmt(i.preco)}</div>
@@ -129,12 +144,29 @@ grid.addEventListener("change", e => {
   if(qi.value === "" || Number(qi.value) === 0) setQtd(qi.closest(".item").dataset.code, 0);
 });
 
-function buscar(){
+/* filtro = categoria ativa + texto da busca (código, nome, compatibilidade ou categoria) */
+function filtrar(){
   const q = norm(input.value);
-  exibidos = q ? ITENS.filter(i => [i.code, i.nome, i.compat].some(t => norm(t || "").includes(q))) : ITENS.slice();
+  exibidos = ITENS.filter(i =>
+    (catAtiva === "Todas" || i.categoria === catAtiva) &&
+    (!q || [i.code, i.nome, i.compat, i.categoria].some(t => norm(t || "").includes(q))));
   render();
 }
-function verTodos(){ input.value=""; exibidos = ITENS.slice(); render(); }
+const buscar = filtrar;
+function verTodos(){ input.value = ""; catAtiva = "Todas"; renderCats(); filtrar(); }
+
+/* botões de categoria (só aparecem quando há 2 ou mais categorias com itens) */
+function renderCats(){
+  const box = $("cats");
+  if(CATS.length < 2){ box.hidden = true; return; }
+  box.hidden = false;
+  const chip = (nome, n) => `<button type="button" data-cat="${esc(nome)}" class="${nome === catAtiva ? "on" : ""}" aria-pressed="${nome === catAtiva}">${esc(nome)}<b>${n}</b></button>`;
+  box.innerHTML = chip("Todas", ITENS.length) + CATS.map(c => chip(c, ITENS.filter(i => i.categoria === c).length)).join("");
+}
+$("cats").addEventListener("click", e => {
+  const b = e.target.closest("[data-cat]"); if(!b) return;
+  catAtiva = b.dataset.cat; renderCats(); filtrar();
+});
 
 $("buscar").addEventListener("click", buscar);
 $("limpar").addEventListener("click", verTodos);
@@ -156,7 +188,7 @@ $("pdf").addEventListener("click", () => {
       <div class="row">
         <img src="${esc(i.imagem)}" alt="" ${IMG_ERR}>
         <div class="n">
-          <div class="c">Código: ${i.code ? esc(i.code) : "Sob consulta"}</div>
+          <div class="c">Código: ${i.code ? esc(i.code) : "Sob consulta"}${CATS.length > 1 ? " · " + esc(i.categoria) : ""}</div>
           <div class="nm">${esc(i.nome)}</div>
           ${i.compat ? `<div class="cp">Compatível: ${esc(i.compat)}</div>` : ""}
           <div class="cp">Unitário: ${MOEDA} ${fmt(i.preco)}</div>
@@ -170,4 +202,4 @@ $("pdf").addEventListener("click", () => {
     .then(() => window.print());
 });
 
-render(); atualizaBarra();
+renderCats(); render(); atualizaBarra();
